@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Reparação 🍫</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    font-family:Arial,Helvetica,sans-serif;
+    background:radial-gradient(circle at top,#3b1725 0,#170d12 48%,#090709 100%);
+    color:#fff; padding:20px;
+  }
+  .app{
+    width:min(440px,100%); background:rgba(25,17,21,.96); border:1px solid #6b3445;
+    border-radius:28px; padding:26px; box-shadow:0 25px 80px rgba(0,0,0,.55);
+  }
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+  .badge{font-size:12px;letter-spacing:1.5px;color:#ffb5c7;border:1px solid #71374b;padding:7px 10px;border-radius:999px}
+  .icon{font-size:42px}
+  h1{font-size:29px;margin:8px 0 8px}
+  .sub{color:#cdbfc4;line-height:1.5;margin-bottom:22px}
+  .card{
+    background:#21171c;border:1px solid #412833;border-radius:18px;padding:17px;margin:12px 0;
+  }
+  .label{font-size:11px;text-transform:uppercase;color:#a9959d;letter-spacing:1px}
+  .value{font-size:17px;margin-top:5px}
+  .danger{color:#ff8eaa;font-weight:700}
+  button{
+    width:100%; border:0; border-radius:15px; padding:15px 16px; margin-top:12px;
+    font-size:16px;font-weight:700;cursor:pointer;transition:.2s;
+  }
+  .primary{background:#ff4773;color:white}
+  .primary:hover{transform:translateY(-2px);filter:brightness(1.08)}
+  .secondary{background:#302329;color:#fff;border:1px solid #5b3a46}
+  .hidden{display:none}
+  .loader{height:8px;background:#35242b;border-radius:20px;overflow:hidden;margin:18px 0}
+  .bar{height:100%;width:0;background:#ff4773;border-radius:20px;transition:width 1.8s}
+  .result{text-align:center}
+  .big{font-size:27px;font-weight:800;margin:10px 0}
+  .stamp{
+    display:inline-block;margin:10px 0;padding:9px 13px;border-radius:10px;
+    border:1px dashed #ff7e9b;color:#ff9bb2;transform:rotate(-2deg);font-weight:800;
+  }
+  .small{font-size:13px;color:#bcaeb4;line-height:1.5}
+  .choice-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .reward-list{display:flex;flex-direction:column;gap:9px;margin-top:12px}
+  .reward-check{
+    display:flex;align-items:center;gap:11px;background:#2b1d24;color:#fff;
+    border:1px solid #543442;border-radius:15px;padding:12px;cursor:pointer;
+    transition:.2s;text-align:left
+  }
+  .reward-check:hover{transform:translateY(-1px);border-color:#ff6d91;background:#35212b}
+  .reward-check input{width:19px;height:19px;accent-color:#ff4773;cursor:pointer;flex:none}
+  .reward-check .emoji{font-size:25px;flex:none}
+  .reward-check span:not(.emoji){font-size:14px;line-height:1.2}
+  .reward-check small{display:block;color:#a9959d;font-size:11px;margin-top:3px}
+  .reward-check:has(input:checked){border-color:#ff6d91;box-shadow:0 0 0 1px rgba(255,109,145,.18)}
+  .success{color:#8ff0b1}
+  .footer{text-align:center;color:#75656c;font-size:11px;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="badge">SISTEMA OFICIAL</div>
+    <div class="icon">🍫</div>
+  </div>
+
+  <section id="home">
+    <h1>Central de Reparação</h1>
+    <p class="sub">Uma ocorrência grave foi registrada e precisa ser resolvida imediatamente.</p>
+
+    <div class="card">
+      <div class="label">Usuário</div>
+      <div class="value">Claudio</div>
+    </div>
+    <div class="card">
+      <div class="label">Ocorrência</div>
+      <div class="value">Deixar Nathalia sem o chocolate favorito por mais um dia.</div>
+    </div>
+    <div class="card">
+      <div class="label">Nível da ocorrência</div>
+      <div class="value danger">GRAVE 🚨</div>
+    </div>
+
+    <button class="primary" onclick="analisar()">SOLICITAR REPARAÇÃO</button>
+    <p class="footer">Central altamente imparcial. (Talvez.)</p>
+  </section>
+
+  <section id="loading" class="hidden">
+    <h1>Analisando...</h1>
+    <p class="sub">Calculando o tamanho do problema causado.</p>
+    <div class="loader"><div id="bar" class="bar"></div></div>
+    <div class="small" id="status">Consultando o departamento de chocolate...</div>
+  </section>
+
+  <section id="result" class="hidden result">
+    <div class="stamp">PENDÊNCIA CONFIRMADA</div>
+    <h1>Resultado da análise</h1>
+    <div class="big">Reparação obrigatória 🍫</div>
+    <p class="sub">O sistema concluiu que um simples pedido de desculpas não será suficiente.</p>
+
+    <div class="card">
+      <div class="label">Pena mínima</div>
+      <div class="value">1 chocolate + compensação pelos danos causados 😌</div>
+    </div>
+
+    <p class="small">Você tem duas opções. Escolha com sabedoria. A vítima está aguardando uma reparação digna.</p>
+    <div class="choice-row">
+      <button class="primary" onclick="aceitar()">ACEITO 😌</button>
+      <button class="secondary" onclick="negociar()">NEGOCIAR</button>
+    </div>
+  </section>
+
+  <section id="accepted" class="hidden result">
+    <div class="icon">🍫</div>
+    <h1>Reparação aceita!</h1>
+    <p class="sub">Sua pena foi parcialmente reduzida.</p>
+    <div class="card">
+      <div class="label">Próximo passo</div>
+      <div class="value success">Entregar o chocolate e descobrir pessoalmente como compensar o restante. 😏</div>
+    </div>
+    <button class="primary" onclick="location.reload()">FINALIZAR OCORRÊNCIA</button>
+  </section>
+
+  <section id="negotiation" class="hidden result">
+    <div class="icon">🤨</div>
+    <h1>Pedido de negociação</h1>
+    <p class="sub">Tudo bem. O sistema permite uma última tentativa de compensação.</p>
+
+    <div class="card">
+      <div class="label">Danos registrados</div>
+      <div class="value">
+        💔 Tristeza<br>
+        🍫 Um dia sem chocolate<br>
+        🫶 Ausência dos carinhos
+      </div>
+    </div>
+
+    <p class="small"><strong>Monte sua própria proposta de compensação:</strong><br>
+    Pode escolher mais de uma opção. Pense bem… a vítima está avaliando sua criatividade. 😌</p>
+
+    <div class="reward-list">
+      <label class="reward-check">
+        <input type="checkbox" value="beijos">
+        <span class="emoji">💋</span>
+        <span><strong>Muitos beijos</strong><small>Para compensar a falta de chocolate</small></span>
+      </label>
+
+      <label class="reward-check">
+        <input type="checkbox" value="carinhos">
+        <span class="emoji">🫶</span>
+        <span><strong>Vários carinhos</strong><small>O sistema considera necessário</small></span>
+      </label>
+
+      <label class="reward-check">
+        <input type="checkbox" value="chocolate">
+        <span class="emoji">🍫</span>
+        <span><strong>Chocolate em dobro</strong><small>Correção imediata do prejuízo</small></span>
+      </label>
+
+      <label class="reward-check">
+        <input type="checkbox" value="companhia">
+        <span class="emoji">😏</span>
+        <span><strong>Uma boa companhia</strong><small>Para reparar o tempo perdido</small></span>
+      </label>
+
+      <label class="reward-check">
+        <input type="checkbox" value="xingamentos">
+        <span class="emoji">😤</span>
+        <span><strong>Xingamentos carinhosos</strong><small>Com direito a reclamação oficial</small></span>
+      </label>
+
+      <label class="reward-check">
+        <input type="checkbox" value="surpresa">
+        <span class="emoji">🎁</span>
+        <span><strong>Uma surpresa</strong><small>Você decide o que será</small></span>
+      </label>
+
+      <label class="reward-check">
+        <input type="checkbox" value="nada">
+        <span class="emoji">🚫</span>
+        <span><strong>Nada, porque não merece</strong><small>Opção de alto risco</small></span>
+      </label>
+    </div>
+
+    <button class="primary" onclick="calcularCompensacao()">CALCULAR MINHA PENA 😌</button>
+
+    <div id="rewardResult" class="card hidden">
+      <div class="label">Decisão do sistema</div>
+      <div id="rewardText" class="value"></div>
+    </div>
+
+    <button class="secondary" onclick="location.reload()">VOLTAR AO INÍCIO</button>
+  </section>
+</div>
+
+<script>
+function show(id){
+  ["home","loading","result","accepted","negotiation"].forEach(x=>document.getElementById(x).classList.add("hidden"));
+  document.getElementById(id).classList.remove("hidden");
+}
+function analisar(){
+  show("loading");
+  setTimeout(()=>document.getElementById("bar").style.width="100%",50);
+  const s=document.getElementById("status");
+  setTimeout(()=>s.textContent="Calculando prejuízo emocional...",600);
+  setTimeout(()=>s.textContent="Verificando quantidade de chocolate perdida...",1200);
+  setTimeout(()=>show("result"),2100);
+}
+function aceitar(){show("accepted")}
+function negociar(){show("negotiation")}
+function calcularCompensacao(){
+  const escolhidos=[...document.querySelectorAll('.reward-check input:checked')].map(x=>x.value);
+  const box=document.getElementById("rewardResult");
+  const text=document.getElementById("rewardText");
+
+  if(escolhidos.length===0){
+    text.textContent="Nenhuma compensação selecionada. A situação ficou ainda mais grave. 🚨 Escolha pelo menos uma.";
+    box.classList.remove("hidden");
+    return;
+  }
+
+  if(escolhidos.includes("nada") && escolhidos.length===1){
+    text.textContent="NEGADO. Você causou o problema e ainda escolheu nada? A vítima acaba de aumentar sua pena. 😂🚨";
+  } else if(escolhidos.includes("nada")){
+    text.textContent="O sistema detectou contradição: você quer reparar o dano e não reparar ao mesmo tempo. Tente novamente, espertinho. 😂";
+  } else {
+    const nomes={
+      beijos:"💋 muitos beijos",
+      carinhos:"🫶 vários carinhos",
+      chocolate:"🍫 chocolate em dobro",
+      companhia:"😏 uma boa companhia",
+      xingamentos:"😤 xingamentos carinhosos",
+      surpresa:"🎁 uma surpresa"
+    };
+    const lista=escolhidos.map(x=>nomes[x]).join(" + ");
+    text.innerHTML="Proposta registrada: <strong>"+lista+"</strong>.<br><br>O sistema considera a compensação promissora… mas a aprovação final depende da vítima. 😌";
+  }
+  box.classList.remove("hidden");
+}
+</script>
+</body>
+</html>
